@@ -77,7 +77,7 @@ local hpGUI = function()
         local pctHPs = mq.TLO.Me.PctHPs()
         if not pctHPs then pctHPs = 0 end
         local ratioHPs = pctHPs / 100
-		
+		local attacking = ' '
         local myName = mq.TLO.Me.CleanName()
 		if (mq.TLO.Me.AmIGroupLeader()) then myName = '*L*'..myName end
 		if (mq.TLO.Group.GroupSize()) then
@@ -87,44 +87,69 @@ local hpGUI = function()
 		end
         ImGui.PushStyleColor(ImGuiCol.PlotHistogram, 1- ratioHPs, ratioHPs, 0.6, 1)
         ImGui.PushStyleColor(ImGuiCol.Text, 0.4, 0.4, 0.4, 1)
-        ImGui.ProgressBar(ratioHPs, -1, -0, myName..': '..pctHPs..'%')
+		if mq.TLO.Me.Combat() then 
+			attacking = ' (A)'
+		else
+			attacking = ' '
+		end
+        ImGui.ProgressBar(ratioHPs, -1, -0, myName..': '..pctHPs..'%'..attacking)
         ImGui.PopStyleColor(2)
+		if (ImGui.IsItemClicked()) then
+			mq.TLO.Me.DoTarget()
+		end
 		DiscTimer()
-		-- Tank Buffs
-		CheckSpecBuff('SHD', 'Shining Aegis', 'Shining Aegis')
-		CheckSpecBuff('PAL', 'Shining Aegis', 'Shining Aegis')
-		CheckSpecBuff('WAR', 'Shining Aegis', 'Shining Aegis')
-		CheckSpecSongYes('SHD', 'Lich Sting', 'SK Epic')
-		CheckSpecSongYes('PAL', 'Lich Sting', 'SK Epic')
-		CheckSpecSongYes('WAR', 'Lich Sting', 'SK Epic')
-		CheckSpecSongYes('SHD', 'Group Armor of the Inquisitor', 'Group Armor')
-		CheckSpecSongYes('PAL', 'Group Armor of the Inquisitor', 'Group Armor')
-		CheckSpecSongYes('WAR', 'Group Armor of the Inquisitor', 'Group Armor')
-		CheckSpecBuffYes('SHD', 'Glyph of Dragon Scales', 'Dragon Glyph')
-		CheckSpecBuffYes('PAL', 'Glyph of Dragon Scales', 'Dragon Glyph')
-		CheckSpecBuffYes('WAR', 'Glyph of Dragon Scales', 'Dragon Glyph')
-		-- SK Buffs
-		CheckSpecBuff('SHD', 'Cadcane\'s Skin', 'Cadcane\'s Skin')
-		CheckSpecBuff('SHD', 'Stormwall Stance', 'Stormwall Stance')
-		CheckSpecBuff('SHD', 'Confluent Disruption', 'Confluent Disruption')
-		CheckSpecBuff('SHD', 'Shroud of the Restless', 'SK Unity')
-		-- PAL Buffs
-		CheckSpecBuff('PAL', 'Stormwall Stance', 'Stormwall Stance')
-		-- BRD Buffs
-		CheckSpecBuff('BRD', 'Symphony of Battle', 'Symphony of Battle')
-		CheckSpecSongYes('BRD', 'Ruaabri\'s Fury', 'Ruaabris Fury')
-		CheckSpecSongYes('BRD', 'Dichotomic Fury', 'BST Dicho')
-		CheckSpecSongYes('BRD', 'Dissident Fury', 'BST Dicho')
-		CheckSpecSongYes('BRD', 'Composite Fury', 'BST Dicho')
-		CheckSpecSongYes('BRD', 'Quick Time', 'QT')
-		CheckSpecSongYes('BRD', 'Prophet\'s Gift of the Ruchu', 'Shaman Epic')
-		
+		local myClass = mq.TLO.Me.Class.ShortName()
+		if (myClass == 'SHD' or myClass == 'PAL' or myClass == 'WAR') then
+			CheckTankBuffs(myClass)
+		end
+		CheckClassBuffs()
 		-- General
 		CheckBuff('Kromrif Focusing')
 		CheckSpecBuffYes(mq.TLO.Me.Class.ShortName(), 'Glyph of Destruction', 'Destruction Glyph')
 		ImGui.Text('Buffs Free: '..mq.TLO.Me.FreeBuffSlots())
         ImGui.End()
     end
+end
+
+function CheckTankBuffs(myClass)
+	if (myClass == 'SHD') then
+		CheckSpecBuff('SHD', 'Shining Aegis', 'Shining Aegis')
+		CheckSpecSongYes('SHD', 'Lich Sting', 'SK Epic')
+		CheckSpecSongYes('SHD', 'Group Armor of the Inquisitor', 'Group Armor')
+		CheckSpecBuffYes('SHD', 'Glyph of Dragon Scales', 'Dragon Glyph')
+	end
+	if (myClass == 'PAL') then
+		CheckSpecBuff('PAL', 'Shining Aegis', 'Shining Aegis')
+		CheckSpecSongYes('PAL', 'Lich Sting', 'SK Epic')
+		CheckSpecBuffYes('PAL', 'Glyph of Dragon Scales', 'Dragon Glyph')
+		CheckSpecSongYes('PAL', 'Group Armor of the Inquisitor', 'Group Armor')
+	end
+	if (myClass == 'WAR') then
+		CheckSpecSongYes('WAR', 'Group Armor of the Inquisitor', 'Group Armor')
+		CheckSpecSongYes('WAR', 'Lich Sting', 'SK Epic')
+		CheckSpecBuff('WAR', 'Shining Aegis', 'Shining Aegis')
+		CheckSpecBuffYes('WAR', 'Glyph of Dragon Scales', 'Dragon Glyph')
+	end
+end
+
+function CheckClassBuffs()
+	-- SK Buffs
+	CheckSpecBuff('SHD', 'Cadcane\'s Skin', 'Cadcane\'s Skin')
+	CheckSpecBuff('SHD', 'Stormwall Stance', 'Stormwall Stance')
+	CheckSpecBuff('SHD', 'Confluent Disruption', 'Confluent Disruption')
+	CheckSpecBuff('SHD', 'Shroud of the Restless', 'SK Unity')
+
+	-- PAL Buffs
+	CheckSpecBuff('PAL', 'Stormwall Stance', 'Stormwall Stance')
+
+	-- BRD Buffs
+	CheckSpecBuff('BRD', 'Symphony of Battle', 'Symphony of Battle')
+	CheckSpecSongYes('BRD', 'Ruaabri\'s Fury', 'Ruaabris Fury')
+	CheckSpecSongYes('BRD', 'Dichotomic Fury', 'BST Dicho')
+	CheckSpecSongYes('BRD', 'Dissident Fury', 'BST Dicho')
+	CheckSpecSongYes('BRD', 'Composite Fury', 'BST Dicho')
+	CheckSpecSongYes('BRD', 'Quick Time', 'QT')
+	CheckSpecSongYes('BRD', 'Prophet\'s Gift of the Ruchu', 'Shaman Epic')
 end
 
 local groupGUI = function()
@@ -137,7 +162,9 @@ local groupGUI = function()
 		if (groupSize > 0) then
 			for i=1,groupSize
 			do
+				local memName = mq.TLO.Group.Member(i).Name()
 				PushGroupHP(i)
+				
 			end
 		end
 		ImGui.End()
@@ -205,6 +232,7 @@ function PushGroupHP(groupNum)
 
 		ImGui.Columns(3)
 		PushHP(ratioHPs, pctHPs, gMemName)
+		GroupContextMenu(gMemName)
 		ImGui.NextColumn()
 		PushMP(ratioMPs, pctMPs, gMemName)
 		ImGui.NextColumn()
@@ -213,6 +241,54 @@ function PushGroupHP(groupNum)
 	else
 		if not gMemName then return end
 		PushHP(0, gMemName, 'Not In Zone')
+		GroupContextMenu(gMemName)
+	end
+end
+
+function GroupContextMenu(gMemName)
+	if ImGui.BeginPopupContextItem() then
+		if ImGui.BeginMenu('Set Leader') then
+			if ImGui.MenuItem(gMemName) then
+				mq.cmd.docommand('/makeleader '..gMemName)
+			end
+			ImGui.EndMenu()
+		end
+
+		if ImGui.BeginMenu('Set Assist') then
+			if ImGui.MenuItem(gMemName) then
+				mq.cmd.docommand('/group set '..gMemName..' 2')
+			end
+			ImGui.EndMenu()
+		end
+
+		if ImGui.BeginMenu('Set Tank') then
+			if ImGui.MenuItem(gMemName) then
+				mq.cmd.docommand('/group set '..gMemName..' 1')
+			end
+			ImGui.EndMenu()
+		end
+
+		if ImGui.BeginMenu('Set Puller') then
+			if ImGui.MenuItem(gMemName) then
+				mq.cmd.docommand('/group set '..gMemName..' 3')
+			end
+			ImGui.EndMenu()
+		end
+
+		if ImGui.BeginMenu('Set Mark NPC') then
+			if ImGui.MenuItem(gMemName) then
+				mq.cmd.docommand('/group set '..gMemName..' 4')
+			end
+			ImGui.EndMenu()
+		end
+
+		if ImGui.BeginMenu('Set Master Looter') then
+			if ImGui.MenuItem(gMemName) then
+				mq.cmd.docommand('/group set '..gMemName..' 5')
+			end
+			ImGui.EndMenu()
+		end
+		ImGui.EndPopup()
 	end
 end
 
@@ -287,12 +363,30 @@ CheckSpecSongYes = function (className, buffName, buffText)
 	end
 end
 
+local startGUI = function ()
+	if ImGui.TreeNode("Checkboxes") then
+		local changed1, newVal1 = ImGui.Checkbox("Debuffs GUI", startDebuffs)
+		if changed1 then startDebuffs = newVal1 end
+		local changed2, newVal2 = ImGui.Checkbox("Target GUI", startTarget)
+		if changed2 then startTarget = newVal2 end
+		local changed3, newVal3 = ImGui.Checkbox("HP GUI", startHP)
+		if changed3 then startHP = newVal3 end
+		local changed4, newVal4 = ImGui.Checkbox("Group GUI", startGroup)
+		if changed4 then startGroup = newVal4 end
+		local changed5, newVal5 = ImGui.Checkbox("Mana GUI", startMana)
+		if changed5 then startMana = newVal5 end
+		local changed6, newVal6 = ImGui.Checkbox("Endurance GUI", startEnd)
+		if changed6 then startEnd	 = newVal6 end
+	end
+end
+
 mq.imgui.init('dotGUI', dotGUI)
 mq.imgui.init('targetGUI', targetGUI)
 mq.imgui.init('hpGUI', hpGUI)
 mq.imgui.init('groupGUI', groupGUI)
 mq.imgui.init('manaGUI', manaGUI)
 mq.imgui.init('endGUI', endGUI)
+--mq.imgui.init('startGUI', startGUI)
 local terminate = false
 while not terminate do
     FailSafe()
