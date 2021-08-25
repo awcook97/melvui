@@ -11,4 +11,5 @@ The target window will show your target, PctHP as a progress bar, target name, a
 
 The debuff window will show only the debuffs that matter, such as Funeral Dirge, TVyl's Resolve, Mana Burn, Pinpoint Defects, slow, and Coalition. There are currently no plans to pull your DoTs, as that can slow down this element of the UI significantly. As the UI grows, these changes might come.
 
-![screenshot](https://user-images.githubusercontent.com/8891546/130730666-a5725ad4-d181-4bee-9308-884055657a0e.png)
+![screenshot](https://user-images.githubusercontent.com/8891546/130777253-eba3b116-b95f-4747-9b81-f4d6ea032f56.png)
+
